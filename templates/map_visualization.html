@@ -22,6 +22,16 @@
   <div id="map"></div>
   <div class="chart-container" id="chart-container"></div>
 
+  <div id="manualInput">
+    <label for="latitude">Latitude:</label>
+    <input type="text" id="latitude" value="21.194765442951883" />
+    <br />
+    <label for="longitude">Longitude:</label>
+    <input type="text" id="longitude" value="96.58275260684468" />
+    <br />
+    <button onclick="handleManualInput()">Calculate</button>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
     var map = L.map('map').setView([0, 0], 2);
@@ -52,6 +62,53 @@
       var marker = L.marker([row.latitude, row.longitude]).addTo(map);
       marker.bindPopup(`UUID: ${row.uuid}<br>Latitude: ${row.latitude}<br>Longitude: ${row.longitude}`);
     });
+
+
+    function handleManualInput() {
+      var latitudeInput = document.getElementById('latitude');
+      var longitudeInput = document.getElementById('longitude');
+
+      var latitude = parseFloat(latitudeInput.value);
+      var longitude = parseFloat(longitudeInput.value);
+
+      if (!isNaN(latitude) && !isNaN(longitude)) {
+        // Call the Flask endpoint with the manual input
+        fetch(`/calculate?latitude=${latitude}&longitude=${longitude}`)
+          .then(response => response.json())
+          .then(data => {
+            var chartCanvas = document.createElement('canvas');
+            var chartContainer = document.getElementById('chart-container');
+            chartCanvas.width = 300;
+            chartCanvas.height = 200;
+            chartContainer.innerHTML = '';
+            chartContainer.appendChild(chartCanvas);
+
+            // Create the chart using Chart.js
+            var ctx = chartCanvas.getContext('2d');
+            currentChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: data.timestamps,
+                datasets: [{
+                  label: 'Time Series',
+                  data: data.values,
+                  borderColor: 'rgb(75, 192, 192)',
+                  fill: false
+                }]
+              },
+              options: {
+                responsive: true
+              }
+            });
+
+          })
+          .catch(error => {
+            console.error('Error fetching data:', error);
+          });
+      } else {
+        console.log('Invalid input');
+      }
+    }
 
     function loadTimeSeriesData(uuid) {
       var currentChart = null;

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import sqlite3
 
 import handle_db
+import triangulate
 
 app = Flask(__name__)
 
@@ -41,6 +42,29 @@ def get_timeseries_data():
     }
 
     return jsonify(response_data)
+
+@app.route('/calculate', methods=['GET'])
+def calculate():
+    try:
+        # Get the float parameters from the query string
+        latitude = float(request.args.get('latitude'))
+        longitude = float(request.args.get('longitude'))
+
+        # Perform some calculation using the parameters
+        result = triangulate.main(latitude, longitude)
+
+        timestamps = [str(_) for _ in result.index]
+        values = [val for val in result[result.columns[0]]]
+
+        response_data = {
+            'timestamps': timestamps,
+            'values': values
+        }
+
+        # Return the result as JSON
+        return jsonify(response_data)
+    except ValueError:
+        return jsonify({'error': 'Invalid parameters'})
 
 @app.route('/')
 def index():
