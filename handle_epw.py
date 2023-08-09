@@ -1,13 +1,15 @@
 """
-For an example we add three time series of vietnam
-and attach different geo coordinates to them:
+Handle epw
+----------
 
+This is a script used to read data from .epw files and write them into the db.
+
+For example we add a few timeseries to the db:
 
 python handle_epw.py VNM_HANOI_HadCM3-A2-2050.epw 21.26347411413358 105.63912300232661
 python handle_epw.py THA_BANGKOK_HadCM3-A2-2050.epw 13.86223610846692 100.45250147564053
 python handle_epw.py NPL_KATHMANDU_INTL_ARPT_HadCM3-A2-2050.epw 27.73259182798238 85.32597539879666
 python handle_epw.py BGD_RANGPUR_HadCM3-A2-2050.epw 25.75163995669843 89.26101291512217
-
 """
 import sys
 import pandas as pd
