@@ -36,11 +36,11 @@ class TriangulateDB(object):
     @staticmethod
     def barycentric_interpolation(triangulation, vertex_indices, latitude, longitude):
         triangle_vertices = triangulation.points[vertex_indices]
-        print("triangle_vertices ", triangle_vertices)
+
         v0, v1, v2 = triangle_vertices
         denom = (v1[1] - v2[1]) * (v0[0] - v2[0]) + (v2[0] - v1[0]) * (v0[1] - v2[1])
-        b0 = ((v1[1] - v2[1]) * (longitude - v2[0]) + (v2[0] - v1[0]) * (latitude - v2[1])) / denom
-        b1 = ((v2[1] - v0[1]) * (longitude - v2[0]) + (v0[0] - v2[0]) * (latitude - v2[1])) / denom
+        b0 = ((v1[1] - v2[1]) * (latitude - v2[0]) + (v2[0] - v1[0]) * (longitude - v2[1])) / denom
+        b1 = ((v2[1] - v0[1]) * (latitude - v2[0]) + (v0[0] - v2[0]) * (longitude - v2[1])) / denom
         b2 = 1.0 - b0 - b1
 
         return b0, b1, b2
@@ -66,7 +66,7 @@ def main(latitude, longitude):
         triangulation, vertex_indices, latitude, longitude)
 
     val = tdb.interpolate(timeseries, parameters)
-    
+
     return val
 
 
