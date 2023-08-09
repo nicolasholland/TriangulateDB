@@ -36,7 +36,7 @@ class DBHandle(object):
 
     def insert_ts(self, ts: pd.Series, table_name: str):
         """ Insert timeseries under table name of uuid """
-        ts.to_sql(table_name, self.conn, if_exists='replace', index=False)
+        ts.to_sql(table_name, self.conn, if_exists='replace')
 
     def get_geotable(self):
         uuid_mapping_df = pd.read_sql_query('SELECT * FROM uuid_mapping', self.conn)
@@ -45,6 +45,7 @@ class DBHandle(object):
     def get_ts(self, geoid: str):
         query = f'SELECT * FROM {geoid}'
         time_series = pd.read_sql_query(query, self.conn)
+        time_series = time_series.set_index("Datetime")
         return time_series
 
     def get_all_tables(self):

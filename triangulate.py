@@ -64,9 +64,9 @@ def main(latitude, longitude):
     timeseries = tdb.get_ts_from_vertices(geo, vertex_indices)
     parameters = tdb.barycentric_interpolation(
         triangulation, vertex_indices, latitude, longitude)
-    print(parameters)
 
     val = tdb.interpolate(timeseries, parameters)
+    
     return val
 
 
