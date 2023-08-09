@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>UUID Mapping Visualization</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+    .chart-container {
+      height: 500px;
+      width: 50%;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="chart-container" id="chart-container"></div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var uuidMappingData;
+
+    fetch('/get_uuid_mapping_data')  // Replace with your server endpoint
+    .then(response => response.json())
+    .then(uuidMappingData => {
+      uuidMappingData.forEach(row => {
+        var marker = L.marker([row.latitude, row.longitude]).addTo(map);
+        marker.bindPopup(`
+          UUID: ${row.uuid}<br>
+          Latitude: ${row.latitude}<br>
+          Longitude: ${row.longitude}<br>
+          <button onclick="loadTimeSeriesData('${row.uuid}')">Show Time Series</button>
+        `);
+      });
+    })
+    .catch(error => {
+      console.error('Error fetching UUID mapping data:', error);
+    });
+
+    uuidMappingData.forEach(row => {
+      var marker = L.marker([row.latitude, row.longitude]).addTo(map);
+      marker.bindPopup(`UUID: ${row.uuid}<br>Latitude: ${row.latitude}<br>Longitude: ${row.longitude}`);
+    });
+
+
+
+    function loadTimeSeriesData(uuid) {
+      fetch(`/get_timeseries_data?uuid=${uuid}`)
+        .then(response => response.json())
+        .then(timeseriesData => {
+          var chartCanvas = document.createElement('canvas');
+          var chartContainer = document.getElementById('chart-container');
+          chartCanvas.id = 'chart-' + uuid;
+          chartCanvas.width = 300;
+          chartCanvas.height = 200;
+          //chartContainer.innerHTML = '';
+          chartContainer.appendChild(chartCanvas);
+
+          var ctx = chartCanvas.getContext('2d');
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: timeseriesData.timestamps,
+              datasets: [{
+                label: 'Time Series',
+                data: timeseriesData.values,
+                borderColor: 'rgb(75, 192, 192)',
+                fill: false
+              }]
+            },
+            options: {
+              responsive: true
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching time series data:', error);
+        });
+    }
+  </script>
+</body>
+</html>
