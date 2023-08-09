@@ -53,9 +53,14 @@
       marker.bindPopup(`UUID: ${row.uuid}<br>Latitude: ${row.latitude}<br>Longitude: ${row.longitude}`);
     });
 
-
-
     function loadTimeSeriesData(uuid) {
+      var currentChart = null;
+      // Remove the previous chart if it exists
+      if (currentChart !== null) {
+        currentChart.destroy();
+        currentChart = null;
+      }
+
       fetch(`/get_timeseries_data?uuid=${uuid}`)
         .then(response => response.json())
         .then(timeseriesData => {
@@ -64,11 +69,11 @@
           chartCanvas.id = 'chart-' + uuid;
           chartCanvas.width = 300;
           chartCanvas.height = 200;
-          //chartContainer.innerHTML = '';
+          chartContainer.innerHTML = '';
           chartContainer.appendChild(chartCanvas);
 
           var ctx = chartCanvas.getContext('2d');
-          new Chart(ctx, {
+          currentChart = new Chart(ctx, {
             type: 'line',
             data: {
               labels: timeseriesData.timestamps,
