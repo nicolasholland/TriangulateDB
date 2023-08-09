@@ -25,6 +25,17 @@ def get_uuid_mapping_data():
 
     return jsonify(response_data)
 
+def df_to_dict(df):
+    """ Turn db retval into dict """
+    timestamps = [str(_) for _ in df.index]
+    values = [val for val in df[df.columns[0]]]
+
+    response_data = {
+        'timestamps': timestamps,
+        'values': values
+    }
+    return response_data
+
 # Endpoint to retrieve time series data for a specific UUID
 @app.route('/get_timeseries_data', methods=['GET'])
 def get_timeseries_data():
@@ -33,13 +44,7 @@ def get_timeseries_data():
     dbh = handle_db.DBHandle()
     timeseries_data = dbh.get_ts(uuid)
 
-    timestamps = [str(_) for _ in timeseries_data.index]
-    values = [val for val in timeseries_data[timeseries_data.columns[0]]]
-
-    response_data = {
-        'timestamps': timestamps,
-        'values': values
-    }
+    response_data = df_to_dict(timeseries_data)
 
     return jsonify(response_data)
 
@@ -50,18 +55,8 @@ def calculate():
         latitude = float(request.args.get('latitude'))
         longitude = float(request.args.get('longitude'))
 
-        # Perform some calculation using the parameters
         result = triangulate.main(latitude, longitude)
-
-        timestamps = [str(_) for _ in result.index]
-        values = [val for val in result[result.columns[0]]]
-
-        response_data = {
-            'timestamps': timestamps,
-            'values': values
-        }
-
-        # Return the result as JSON
+        response_data = df_to_dict(result)
         return jsonify(response_data)
     except ValueError:
         return jsonify({'error': 'Invalid parameters'})

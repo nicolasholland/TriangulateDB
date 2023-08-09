@@ -3,6 +3,9 @@ import sqlite3
 import uuid
 
 class DBHandle(object):
+    """
+    Class to handle interactions with the sqlite db.
+    """
 
     def __init__(self) -> None:
         self.conn = sqlite3.connect('triangulate.db')
@@ -15,6 +18,9 @@ class DBHandle(object):
         )
         '''
         )
+
+    def __del__(self):
+        self.conn.close()
 
     @staticmethod
     def gen_uuid():
