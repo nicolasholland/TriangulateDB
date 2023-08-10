@@ -33,5 +33,5 @@ The more locations one adds to the database, the more accurate are the results o
 barycentric interpolation.
 
 
-
+![](https://raw.githubusercontent.com/nicolasholland/TriangulateDB/master/_images/screenshot.png)
 
